@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Threading;
 using ModestTree;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using Zenject.Internal;
 
 namespace Zenject
@@ -15,9 +17,12 @@ namespace Zenject
         public static event Action PostInstall;
         public static event Action PreResolve;
         public static event Action PostResolve;
+        
+        #if UNITY_EDITOR
+        public static bool disableResourceLoadingOnce;
+        #endif
 
-        public const string ProjectContextResourcePath = "ProjectContext";
-        public const string ProjectContextResourcePathOld = "ProjectCompositionRoot";
+        public const string ProjectContextAddressablePath = "ProjectContext";
 
         static ProjectContext _instance;
 
@@ -90,23 +95,11 @@ namespace Zenject
 
         public static GameObject TryGetPrefab()
         {
-            var prefabs = Resources.LoadAll(ProjectContextResourcePath, typeof(GameObject));
-
-            if (prefabs.Length > 0)
-            {
-                Assert.That(prefabs.Length == 1,
-                    "Found multiple project context prefabs at resource path '{0}'", ProjectContextResourcePath);
-                return (GameObject)prefabs[0];
-            }
-
-            prefabs = Resources.LoadAll(ProjectContextResourcePathOld, typeof(GameObject));
-
-            if (prefabs.Length > 0)
-            {
-                Assert.That(prefabs.Length == 1,
-                    "Found multiple project context prefabs at resource path '{0}'", ProjectContextResourcePathOld);
-                return (GameObject)prefabs[0];
-            }
+            var ao = Addressables.LoadAssetAsync<GameObject>(ProjectContextAddressablePath);
+            ao.WaitForCompletion();
+            
+            if (ao.Status == AsyncOperationStatus.Succeeded)
+                return ao.Result;
 
             return null;
         }
@@ -122,6 +115,14 @@ namespace Zenject
 
             var prefab = TryGetPrefab();
 
+#if UNITY_EDITOR
+            if (disableResourceLoadingOnce)
+            {
+                prefab = null;
+                disableResourceLoadingOnce = true;
+            }
+#endif
+            
             var prefabWasActive = false;
 
 #if ZEN_INTERNAL_PROFILING
@@ -161,12 +162,14 @@ namespace Zenject
                     {
                         gameObjectInstance = GameObject.Instantiate(prefab);
                     }
+
+                    DontDestroyOnLoad(gameObjectInstance);
 #endif
 
                     _instance = gameObjectInstance.GetComponent<ProjectContext>();
 
                     Assert.IsNotNull(_instance,
-                        "Could not find ProjectContext component on prefab 'Resources/{0}.prefab'", ProjectContextResourcePath);
+                        "Could not find ProjectContext component on prefab from addressable path: {0}", ProjectContextAddressablePath);
                 }
             }
 

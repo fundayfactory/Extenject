@@ -15,7 +15,6 @@ namespace Zenject
         readonly Type _signalType;
         readonly object _identifier;
 
-        [Inject]
         public SignalCallbackWithLookupWrapper(
             SignalBindingBindInfo signalBindInfo,
             Type objectType,
@@ -51,4 +50,3 @@ namespace Zenject
         }
     }
 }
-

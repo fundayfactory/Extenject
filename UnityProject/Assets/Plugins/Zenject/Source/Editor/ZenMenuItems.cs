@@ -177,7 +177,7 @@ namespace Zenject.Internal
             {
                 EditorUtility.DisplayDialog("Error",
                     "Could not find directory to place the '{0}.prefab' asset.  Please try again by right clicking in the desired folder within the projects pane."
-                    .Fmt(ProjectContext.ProjectContextResourcePath), "Ok");
+                    .Fmt(ProjectContext.ProjectContextAddressablePath), "Ok");
                 return;
             }
 
@@ -187,7 +187,7 @@ namespace Zenject.Internal
             {
                 EditorUtility.DisplayDialog("Error",
                     "'{0}.prefab' must be placed inside a directory named 'Resources'.  Please try again by right clicking within the Project pane in a valid Resources folder."
-                    .Fmt(ProjectContext.ProjectContextResourcePath), "Ok");
+                    .Fmt(ProjectContext.ProjectContextAddressablePath), "Ok");
                 return;
             }
 
@@ -197,7 +197,7 @@ namespace Zenject.Internal
         static void CreateProjectContextInternal(string absoluteDir)
         {
             var assetPath = ZenUnityEditorUtil.ConvertFullAbsolutePathToAssetPath(absoluteDir);
-            var prefabPath = (Path.Combine(assetPath, ProjectContext.ProjectContextResourcePath) + ".prefab").Replace("\\", "/");
+            var prefabPath = (Path.Combine(assetPath, ProjectContext.ProjectContextAddressablePath) + ".prefab").Replace("\\", "/");
 
             var gameObject = new GameObject();
 

@@ -104,7 +104,7 @@ namespace Zenject
 
         void FireInternal(List<SignalSubscription> subscriptions, object signal)
         {
-            if (subscriptions.IsEmpty()
+            if (subscriptions.Count == 0
 #if ZEN_SIGNALS_ADD_UNIRX
                 && !_stream.HasObservers
 #endif

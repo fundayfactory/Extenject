@@ -421,8 +421,9 @@ namespace Zenject
         {
             var scene = gameObject.scene;
 
-            ZenUtilInternal.AddStateMachineBehaviourAutoInjectersInScene(scene);
-            ZenUtilInternal.GetInjectableMonoBehavioursInScene(scene, monoBehaviours);
+            IEnumerable<GameObject> roots = null;
+            ZenUtilInternal.AddStateMachineBehaviourAutoInjectersInScene(scene, ref roots);
+            ZenUtilInternal.GetInjectableMonoBehavioursInScene(scene, monoBehaviours, ref roots);
         }
 
         // These methods can be used for cases where you need to create the SceneContext entirely in code

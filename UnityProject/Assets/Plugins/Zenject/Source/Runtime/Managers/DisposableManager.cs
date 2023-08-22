@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ModestTree;
 using ModestTree.Util;
+using UnityEngine;
 
 namespace Zenject
 {
@@ -94,8 +95,7 @@ namespace Zenject
                 }
                 catch (Exception e)
                 {
-                    throw Assert.CreateException(
-                        e, "Error occurred while late disposing ILateDisposable with type '{0}'", disposable.LateDisposable.GetType());
+                    Debug.LogException(e);
                 }
             }
         }
@@ -123,8 +123,7 @@ namespace Zenject
                 }
                 catch (Exception e)
                 {
-                    throw Assert.CreateException(
-                        e, "Error occurred while disposing IDisposable with type '{0}'", disposable.Disposable.GetType());
+                    Debug.LogException(e);
                 }
             }
         }

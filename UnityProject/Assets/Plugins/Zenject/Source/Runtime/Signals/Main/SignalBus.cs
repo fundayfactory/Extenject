@@ -65,14 +65,18 @@ namespace Zenject
 		{
 			// Do this before creating the signal so that it throws if the signal was not declared
 			Type signalType = typeof(TSignal);
-            InternalFire(signalType, signal, identifier, true);
+            InternalFire(signalType, signal, identifier, true, false);
 
             Type[] interfaces = signalType.GetInterfaces();
             int numOfInterfaces = interfaces.Length;
+
             for (int i = 0; i < numOfInterfaces; i++)
             {
-                InternalFire(interfaces[i], signal, identifier, true);
+                InternalFire(interfaces[i], signal, identifier, true, false);
             }
+            
+            if (signal is ISignalReset reset)
+                reset.Reset();
 		}
 
         public void LateDispose()
@@ -102,7 +106,7 @@ namespace Zenject
 
         public void FireId<TSignal>(object identifier, TSignal signal)
         {
-            InternalFire(typeof(TSignal), signal, identifier, true);
+            InternalFire(typeof(TSignal), signal, identifier, true, true);
         }
 
         public void Fire<TSignal>(TSignal signal)
@@ -112,7 +116,7 @@ namespace Zenject
 
         public void FireId<TSignal>(object identifier)
         {
-            InternalFire(typeof(TSignal), null, identifier, true);
+            InternalFire(typeof(TSignal), null, identifier, true, true);
         }
 
         public void Fire<TSignal>()
@@ -122,7 +126,7 @@ namespace Zenject
 
         public void FireId(object identifier, object signal)
         {
-            InternalFire(signal.GetType(), signal, identifier, true);
+            InternalFire(signal.GetType(), signal, identifier, true, true);
         }
 
         public void Fire(object signal)
@@ -153,7 +157,7 @@ namespace Zenject
 
         public void TryFireId<TSignal>(object identifier, TSignal signal)
         {
-            InternalFire(typeof(TSignal), signal, identifier, false);
+            InternalFire(typeof(TSignal), signal, identifier, false, true);
         }
 
         public void TryFire<TSignal>(TSignal signal)
@@ -163,7 +167,7 @@ namespace Zenject
 
         public void TryFireId<TSignal>(object identifier)
         {
-            InternalFire(typeof(TSignal), null, identifier, false);
+            InternalFire(typeof(TSignal), null, identifier, false, true);
         }
 
         public void TryFire<TSignal>()
@@ -173,7 +177,7 @@ namespace Zenject
 
         public void TryFireId(object identifier, object signal)
         {
-            InternalFire(signal.GetType(), signal, identifier, false);
+            InternalFire(signal.GetType(), signal, identifier, false, true);
         }
 
         public void TryFire(object signal)
@@ -181,9 +185,10 @@ namespace Zenject
             TryFireId(null, signal);
         }
 
-        private void InternalFire(Type signalType, object signal, object identifier, bool requireDeclaration)
+        private void InternalFire(Type signalType, object signal, object identifier, bool requireDeclaration, bool useReset)
         {
             var signalId = new BindingId(signalType, identifier);
+            var signalReset = useReset ? signal as ISignalReset : null;
 
             // Do this before creating the signal so that it throws if the signal was not declared
             var declaration = GetDeclaration(signalId);
@@ -192,6 +197,10 @@ namespace Zenject
             {
                 if (requireDeclaration)
                 {
+                    if (!useReset)
+                        signalReset = signal as ISignalReset;
+                    
+                    signalReset?.Reset();
                     throw Assert.CreateException("Fired undeclared signal '{0}'!", signalId);
                 }
             }
@@ -203,6 +212,7 @@ namespace Zenject
                 }
 
                 declaration.Fire(signal);
+                signalReset?.Reset();
             }
         }
 

@@ -114,9 +114,11 @@ namespace Zenject.Internal
             }
         }
 
-        public static void AddStateMachineBehaviourAutoInjectersInScene(Scene scene)
+        public static void AddStateMachineBehaviourAutoInjectersInScene(Scene scene, ref IEnumerable<GameObject> roots)
         {
-            foreach (var rootObj in GetRootGameObjects(scene))
+            roots ??= GetRootGameObjects(scene);
+
+            foreach (var rootObj in roots)
             {
                 if (rootObj != null)
                 {
@@ -149,13 +151,14 @@ namespace Zenject.Internal
         }
 
         public static void GetInjectableMonoBehavioursInScene(
-            Scene scene, List<MonoBehaviour> monoBehaviours)
+            Scene scene, List<MonoBehaviour> monoBehaviours, ref IEnumerable<GameObject> roots)
         {
 #if ZEN_INTERNAL_PROFILING
             using (ProfileTimers.CreateTimedBlock("Searching Hierarchy"))
 #endif
             {
-                foreach (var rootObj in GetRootGameObjects(scene))
+                roots ??= GetRootGameObjects(scene);
+                foreach (var rootObj in roots)
                 {
                     if (rootObj != null)
                     {
@@ -262,8 +265,8 @@ namespace Zenject.Internal
                 // We also make sure not to inject into the project root objects which are injected by ProjectContext.
                 return Resources.FindObjectsOfTypeAll<GameObject>()
                     .Where(x => x.transform.parent == null
-                            && x.GetComponent<ProjectContext>() == null
-                            && x.scene == scene);
+                                && x.scene == scene
+                                && x.GetComponent<ProjectContext>() == null);
             }
         }
 

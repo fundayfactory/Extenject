@@ -12,7 +12,6 @@ namespace Zenject
         SignalDeclaration _declaration;
         BindingId _signalId;
 
-        [Inject]
         public SignalSubscription(Pool pool)
         {
             _pool = pool;
@@ -78,10 +77,6 @@ namespace Zenject
 
         public class Pool : PoolableMemoryPool<Action<object>, SignalDeclaration, SignalSubscription>
         {
-            [Inject]
-            public Pool()
-            {
-            }
         }
     }
 }

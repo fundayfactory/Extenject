@@ -12,7 +12,6 @@ namespace Zenject
         readonly Type _signalType;
         readonly object _identifier;
 
-        [Inject]
         public SignalCallbackWrapper(
             SignalBindingBindInfo bindInfo,
             Action<object> action,

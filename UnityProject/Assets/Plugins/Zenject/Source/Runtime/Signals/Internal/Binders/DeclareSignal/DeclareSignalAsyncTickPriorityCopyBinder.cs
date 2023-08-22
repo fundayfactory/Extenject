@@ -1,7 +1,8 @@
 namespace Zenject
 {
     [NoReflectionBaking]
-    public class DeclareSignalAsyncTickPriorityCopyBinder : SignalTickPriorityCopyBinder
+    public class 
+        DeclareSignalAsyncTickPriorityCopyBinder : SignalTickPriorityCopyBinder
     {
         public DeclareSignalAsyncTickPriorityCopyBinder(SignalDeclarationBindInfo signalBindInfo)
             : base(signalBindInfo)
@@ -21,4 +22,3 @@ namespace Zenject
         }
     }
 }
-
